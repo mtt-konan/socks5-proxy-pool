@@ -1,4 +1,4 @@
-# 高性能多协议代理池系统 v1.0.1
+# 高性能多协议代理池系统 v1.0.0
 
 一个高效的代理池系统，支持HTTP、HTTPS和SOCKS5协议，能够将带验证的远程代理转换为本地无验证代理，并提供自动轮换功能。系统采用LRU（最近最少使用）算法管理代理，针对高并发场景进行了优化。
 
@@ -21,13 +21,6 @@ graph LR
     C --> D[双协议代理\n10000-10099端口]
     D --> E[远程SOCKS5/HTTP代理]
     E --> F[目标网站]
-    
-    style A fill:#f9f,stroke:#333
-    style B fill:#bbf,stroke:#333
-    style C fill:#f96,stroke:#333
-    style D fill:#6f9,stroke:#333
-    style E fill:#69f,stroke:#333
-    style F fill:#9f6,stroke:#333
 ```
 
 - **代理服务器**：双协议代理服务器，同时支持HTTP和SOCKS5
