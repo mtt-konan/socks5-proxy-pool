@@ -1,6 +1,8 @@
 # 敏感文件
 all_proxies.txt
 auth_proxies.txt
+progress_tracking.md
+*.png
 
 # Python
 __pycache__/
@@ -34,6 +36,7 @@ ENV/
 .vscode/
 *.swp
 *.swo
+*.augment-guidelines
 
 # 日志
 *.log

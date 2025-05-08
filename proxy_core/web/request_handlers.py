@@ -69,8 +69,14 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
         # 构建纯文本响应
         text_response = ""
 
+        # 检查是否是双层代理模式
+        is_dual_proxy = 'first_layer_host' in stats[0] if stats else False
+
         # 添加标题行
-        text_response += "索引,本地端口,远程主机,远程端口,用户名,最后使用时间,LRU位置\n"
+        if is_dual_proxy:
+            text_response += "索引,本地端口,第一层代理,第二层代理,最后使用时间,LRU位置,连接数\n"
+        else:
+            text_response += "索引,本地端口,远程主机,远程端口,用户名,最后使用时间,LRU位置,连接数\n"
 
         # 添加数据行
         for stat in stats:
@@ -78,7 +84,14 @@ class ProxyHandler(http.server.BaseHTTPRequestHandler):
             last_used_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(stat['last_used']))
 
             # 添加一行数据
-            text_response += f"{stat['index']},{stat['local_port']},{stat['remote_host']},{stat['remote_port']},{stat['username']},{last_used_time},{stat['lru_position']}\n"
+            if is_dual_proxy:
+                # 双层代理模式
+                first_layer = f"{stat['first_layer_host']}:{stat['first_layer_port']}"
+                second_layer = f"{stat['second_layer_host']}:{stat['second_layer_port']}"
+                text_response += f"{stat['index']},{stat['local_port']},{first_layer},{second_layer},{last_used_time},{stat['lru_position']},{stat['connections']}\n"
+            else:
+                # 单层代理模式
+                text_response += f"{stat['index']},{stat['local_port']},{stat['remote_host']},{stat['remote_port']},{stat['username']},{last_used_time},{stat['lru_position']},{stat['connections']}\n"
 
         # 返回纯文本响应
         self.send_response(200)

@@ -1,6 +1,6 @@
-# 高性能多协议代理池系统 v1.0.0
+# 高性能多协议代理池系统 v2.0.0
 
-一个高效的代理池系统，支持HTTP、HTTPS和SOCKS5协议，能够将带验证的远程代理转换为本地无验证代理，并提供自动轮换功能。系统采用LRU（最近最少使用）算法管理代理，针对高并发场景进行了优化。
+一个高效的代理池系统，支持HTTP、HTTPS和SOCKS5协议，能够将带验证的远程代理转换为本地无验证代理，并提供自动轮换功能。系统采用LRU（最近最少使用）算法管理代理，针对高并发场景进行了优化。v2.0.0版本新增了双层代理功能，提供更高级别的匿名性保护。
 
 ## 主要功能
 
@@ -11,8 +11,11 @@
 - **高并发支持**：优化的锁机制和代理池预热，支持高并发请求
 - **大规模代理**：支持使用大量代理，自动跳过无效代理
 - **统计信息**：提供代理使用情况的统计信息
+- **双层代理**：v2.0.0新增，通过两层代理转发流量，提高匿名性
 
 ## 系统架构
+
+### 单层代理模式
 
 ```mermaid
 graph LR
@@ -21,6 +24,18 @@ graph LR
     C --> D[双协议代理\n10000-10099端口]
     D --> E[远程SOCKS5/HTTP代理]
     E --> F[目标网站]
+```
+
+### 双层代理模式 (v2.0.0新增)
+
+```mermaid
+graph LR
+    A[客户端] --> B{Web服务器\n7777端口}
+    B --> C[LRU代理池]
+    C --> D[双协议代理\n10000-10099端口]
+    D --> E[第一层代理]
+    E --> G[第二层代理]
+    G --> F[目标网站]
 ```
 
 - **代理服务器**：双协议代理服务器，同时支持HTTP和SOCKS5
@@ -50,8 +65,11 @@ pip install -r requirements.txt
 # 格式: IP地址 端口 用户名 密码
 # 例如: 192.168.1.1 1080 username password
 
-# 3. 启动服务器
+# 3. 启动服务器 (单层代理模式)
 python proxy_server_main.py --max-active-proxies 100
+
+# 或者启动双层代理模式 (v2.0.0新增)
+python proxy_server_main.py --dual-proxy --max-active-proxies 100
 ```
 
 ### 使用方法
@@ -112,6 +130,7 @@ python proxy_server_main.py --help
 - `--port`：Web服务器端口 (默认: 7777)
 - `--proxy-file`：代理列表文件 (默认: all_proxies.txt)
 - `--max-active-proxies`：最大活跃代理数量 (默认: 200)
+- `--dual-proxy`：启用双层代理模式 (v2.0.0新增)
 
 ## 应用场景
 
@@ -127,8 +146,14 @@ python proxy_server_main.py --help
 # 增加活跃代理数量，提高并发能力
 python proxy_server_main.py --max-active-proxies 300
 
-# 性能测试
-python test_proxy.py
+# 启用双层代理模式，提高匿名性
+python proxy_server_main.py --dual-proxy --max-active-proxies 100
+
+# 性能测试 (单层代理)
+python tests/test_high_concurrency.py --concurrency 50
+
+# 双层代理测试
+python tests/test_dual_proxy.py --concurrency 10
 ```
 
 ## 许可证
